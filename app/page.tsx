@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 
 interface GeneratedSpec {
   componentCode: string;
@@ -35,16 +36,18 @@ export default function Home() {
       setOutput(data);
       setStatus('online');
     } catch {
-      // Safe Resilience Fallback: Returns structured spec locally if API key/network fails
+      // Resilient Fallback Engine
       setStatus('fallback');
+      const sanitizedName = prompt.replace(/[^a-zA-Z0-9]/g, '') || 'GeneratedComponent';
       setOutput({
-        componentCode: `// Generated Accessible Component for: "${prompt}"\nimport React from 'react';\n\nexport const CustomComponent = () => {\n  return (\n    <div role="region" aria-label="Generated Component" className="p-4 rounded-lg border border-slate-200 bg-white shadow-sm">\n      <h3 className="text-lg font-semibold text-slate-900">${prompt}</h3>\n      <button \n        type="button"\n        className="mt-3 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:outline-none"\n      >\n        Interactive Action\n      </button>\n    </div>\n  );\n};`,
-        zodSchema: `import { z } from 'zod';\n\nexport const ComponentSchema = z.object({\n  title: z.string().min(1, "Title is required"),\n  actionEnabled: z.boolean().default(true),\n});`,
+        componentCode: `// Generated Accessible Component for: "${prompt}"\nimport React from 'react';\nimport { useForm } from 'react-hook-form';\nimport { zodResolver } from '@hookform/resolvers/zod';\nimport { z } from 'zod';\n\nconst Schema = z.object({\n  input: z.string().min(2, 'Minimum 2 characters required'),\n});\n\nexport const ${sanitizedName} = () => {\n  const { register, handleSubmit, formState: { errors } } = useForm({\n    resolver: zodResolver(Schema)\n  });\n\n  return (\n    <form onSubmit={handleSubmit(() => {})} className="space-y-4 p-6 border rounded-xl bg-white shadow-sm max-w-lg">\n      <div>\n        <label htmlFor="field" className="block text-sm font-semibold text-slate-800 mb-1">\n          ${prompt}\n        </label>\n        <input \n          id="field" \n          {...register('input')} \n          aria-invalid={!!errors.input} \n          aria-describedby="field-error" \n          className="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm text-slate-900"\n        />\n        {errors.input && (\n          <p id="field-error" role="alert" className="mt-1 text-xs text-red-600 font-medium">\n            {errors.input.message as string}\n          </p>\n        )}\n      </div>\n      <button \n        type="submit" \n        className="px-4 py-2 bg-[#4338CA] hover:bg-indigo-800 text-white font-medium text-sm rounded-lg transition-colors focus:ring-2 focus:ring-indigo-500 focus:outline-none"\n      >\n        Submit\n      </button>\n    </form>\n  );\n};`,
+        zodSchema: `import { z } from 'zod';\n\nexport const ${sanitizedName}Schema = z.object({\n  input: z.string().min(2, 'Must be at least 2 characters'),\n});`,
         a11yChecklist: [
-          'Explicit aria-label bound to outer container region',
-          'Focus ring styling (focus:ring-2) present on all interactive controls',
+          'Explicit <label htmlFor="field"> association for screen reader discovery',
+          'Dynamic aria-invalid attribute tied directly to form error states',
+          'Error messages mapped with aria-describedby and role="alert"',
+          'Visible focus rings (focus:ring-2) enforced across input and submit elements',
           'High-contrast slate typography (#0F172A) meeting WCAG AA contrast ratio',
-          'Keyboard navigable button element with type="button" set explicitly',
         ],
       });
     } finally {
@@ -58,21 +61,37 @@ export default function Home() {
         
         {/* Navigation & Header */}
         <header className="flex items-center justify-between border-b border-slate-200 pb-4">
-          <div className="flex items-center space-x-2">
-            <span className="text-xl font-bold tracking-tight text-indigo-700">AI.Capstone</span>
-            <span className="text-xs px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 font-mono font-medium">
+          <div className="flex items-center space-x-3">
+            <Link href="/" className="text-xl font-bold tracking-tight text-indigo-700 hover:text-indigo-900 transition-colors">
+              AI.Capstone
+            </Link>
+            <span className="text-xs px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 font-mono font-medium border border-indigo-100">
               v2.0
             </span>
           </div>
-          <div className="flex items-center space-x-2 text-sm">
-            <span className="text-slate-500">System Condition:</span>
-            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
-              status === 'online' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
-            }`}>
-              ● {status === 'online' ? 'Active (Live AI Engine)' : 'Resilient Mode (Local Spec Engine)'}
-            </span>
-          </div>
+
+          <nav className="flex items-center space-x-6 text-sm font-medium">
+            <Link href="/" className="text-indigo-600 font-semibold">
+              Home
+            </Link>
+            <Link href="/settings" className="text-slate-600 hover:text-slate-900 transition-colors">
+              Settings
+            </Link>
+            <Link href="/health" className="text-slate-600 hover:text-slate-900 transition-colors">
+              Health
+            </Link>
+          </nav>
         </header>
+
+        {/* System Health Status Banner */}
+        <section className="flex items-center justify-between bg-white px-5 py-3 rounded-lg border border-slate-200 shadow-sm text-sm">
+          <span className="text-slate-600 font-medium">System Engine Condition:</span>
+          <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${
+            status === 'online' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+          }`}>
+            ● {status === 'online' ? 'Active (Live AI Engine)' : 'Resilient Mode (Local Spec Engine)'}
+          </span>
+        </section>
 
         {/* Core Product Brief Banner */}
         <section className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-2">
@@ -87,23 +106,23 @@ export default function Home() {
         {/* Interactive Prompt Input Form */}
         <form onSubmit={handleGenerate} className="space-y-4">
           <div>
-            <label htmlFor="component-prompt" className="block text-sm font-semibold text-slate-700 mb-1">
+            <label htmlFor="component-prompt" className="block text-sm font-semibold text-slate-700 mb-2">
               Describe the UI Component You Need
             </label>
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-3">
               <input
                 id="component-prompt"
                 type="text"
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
                 placeholder="e.g., A user settings modal with email validation and dark mode toggle"
-                className="flex-1 px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-600 focus:border-transparent outline-none bg-white text-slate-900 text-sm"
+                className="flex-1 px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-600 focus:border-transparent outline-none bg-white text-slate-900 text-sm shadow-sm"
                 required
               />
               <button
                 type="submit"
                 disabled={loading}
-                className="px-6 py-2.5 bg-[#4338CA] hover:bg-indigo-800 text-white font-medium text-sm rounded-lg transition-colors focus:ring-2 focus:ring-indigo-500 disabled:opacity-50"
+                className="px-6 py-2.5 bg-[#4338CA] hover:bg-indigo-800 text-white font-medium text-sm rounded-lg transition-colors focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 shadow-sm whitespace-nowrap"
               >
                 {loading ? 'Generating Spec...' : 'Generate Spec'}
               </button>
