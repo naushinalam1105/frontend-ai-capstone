@@ -1,36 +1,53 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AI-Powered Frontend Technical Specification & Accessibility Auditor
 
-## Getting Started
+A production-grade, accessible web application that analyzes user component requirements, generates WCAG 2.1 AA compliant React/TypeScript code, and dynamically generates interactive state machines and test suites.
 
-First, run the development server:
+## 🚀 Live Demo
+- **Live Production URL:** [https://frontend-ai-capstone-five.vercel.app](https://frontend-ai-capstone-five.vercel.app)
+- **GitHub Repository:** [https://github.com/naushinalam1105/frontend-ai-capstone](https://github.com/naushinalam1105/frontend-ai-capstone)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+---
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 📄 Project Brief
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### What problem does it solve?
+Frontend developers frequently ship components with severe accessibility (a11y) flaws, missing ARIA state attributes, and unhandled async error states. Standard LLM generators output generic, unstyled, non-accessible React code without structural boundaries. This application solves that by enforcing strict Zod schema validation, automated WCAG AA ARIA pattern injection, and generating production-ready React + TypeScript code alongside unit tests.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Who is it for?
+Frontend engineers, accessibility auditors, and product UI developers building enterprise design systems.
 
-## Learn More
+### Why did you choose this idea?
+To bridge the gap between AI code generation and production accessibility standards. Instead of generating raw unvetted text, this tool enforces strict schema validation, structured layout outputs, and WCAG AA verification natively.
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🛠️ Architecture & Tech Stack
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Framework:** Next.js (App Router, Server Actions)
+- **Language:** TypeScript (Strict mode enabled, zero `any` escapes)
+- **Styling:** Tailwind CSS (Accessible slate palette: `#FAFAFA` background, `#0F172A` text, `#4338CA` indigo accent)
+- **State & Validation:** `react-hook-form` + `zod`
+- **AI Engine:** Claude API (`claude-3-5-sonnet`) with structured JSON schema constraints
+- **Testing:** Vitest + React Testing Library + `@axe-core/react`
+- **Deployment & Observability:** Vercel Continuous Deployment
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Architecture Overview
+```text
+[ User Input / Constraints ] 
+            │
+            ▼
+[ Client Validation (Zod) ] ────(Fail)────► [ Local Accessible Inline Error ]
+            │ (Pass)
+            ▼
+[ Next.js Server Action ] 
+            │
+            ▼
+[ Claude 3.5 API with System Prompt & Step-Decomposition ]
+            │
+            ├──► (API Error / Timeout) ──► [ Fallback Mock Spec Generator ]
+            │
+            ▼ (Valid JSON)
+[ Rendered Accessible Output Tabs ]
+    ├── Tab 1: TypeScript Component Interface
+    ├── Tab 2: Accessible React Code (WCAG AA)
+    └── Tab 3: Generated Vitest / RTL Suite
