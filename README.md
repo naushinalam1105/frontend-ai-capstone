@@ -51,3 +51,14 @@ To bridge the gap between AI code generation and production accessibility standa
     ├── Tab 1: TypeScript Component Interface
     ├── Tab 2: Accessible React Code (WCAG AA)
     └── Tab 3: Generated Vitest / RTL Suite
+    
+
+    ## Week 7: Interactive 3D Experience (FE-AA2)
+
+- **Live URL:** https://frontend-ai-capstone-five.vercel.app/experience-3d
+- **What was built:** A realtime 3D procedural shader configurator built with React Three Fiber, `@react-three/drei`, and Next.js App Router. Features material preset swapping, metalness/roughness/distortion controls, wireframe inspection, and cursor pointer-tracking.
+- **Performance Lens (FE-10):**
+  - **Dynamic Lazy Loading:** Code-split the 3D Canvas via `next/dynamic` (`ssr: false`) with a loading fallback skeleton, preventing the initial bundle from blocking First Contentful Paint (FCP).
+  - **DPR Clamping:** Capped pixel density at `dpr={[1, 2]}` to prevent high-DPI mobile screens from rendering redundant fragments and throttling frame rates.
+  - **Geometry Footprint:** Used procedural geometry (`TorusKnotGeometry`) instead of external multi-megabyte GLB assets, ensuring instant 0ms asset transfer overhead.
+- **Future Additions:** Add Web Audio reactive frequency distortion and DRACO-compressed 3D GLTF product model swapping.
